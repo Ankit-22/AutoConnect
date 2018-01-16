@@ -28,6 +28,7 @@ public class ConnectionSocket {
     public boolean sendSocketMessage(String message) {
         try {
             dataStream.writeUTF(message);
+            Log.i("Debug", "Sent Message: "+message);
             return true;
         } catch (SocketException se) {
             Log.i("Socket_Error", "Unable to connect: "+se);
