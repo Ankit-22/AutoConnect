@@ -3,6 +3,8 @@ import java.awt.Toolkit;
 import java.awt.Dimension;
 import java.awt.event.InputEvent;
 import java.awt.AWTException;
+import java.awt.Point;
+import java.awt.MouseInfo;
 
 class MyRobot {
 	private Robot robot;
@@ -40,6 +42,7 @@ class MyRobot {
 	public void moveMouse(double controller_x, double controller_y) {
 		int monitor_x = (int) ((controller_x * ((double)screenWidth)) / controller_width);
 		int monitor_y = (int) ((controller_y * ((double)screenHeight)) / controller_height);
-		robot.mouseMove(monitor_x, monitor_y);
+		Point mousePosition = MouseInfo.getPointerInfo().getLocation();
+		robot.mouseMove((int)mousePosition.getX() + monitor_x, (int)mousePosition.getY() + monitor_y);
 	}
 }

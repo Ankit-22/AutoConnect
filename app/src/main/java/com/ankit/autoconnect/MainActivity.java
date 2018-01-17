@@ -1,5 +1,6 @@
 package com.ankit.autoconnect;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,14 +9,49 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
+import java.util.Date;
+
 public class MainActivity extends AppCompatActivity {
 
     private int is_double_click = 0;
-    private float initial_x, initial_y;
+    private float initial_x, initial_y, start_x, start_y;
     private int mActivePointerId;
     private View touchPad;
+    private static Date prevDate = new Date();
     private ConnectionSocket connectionSocket;
 
+    @SuppressLint("StaticFieldLeak")
+    private void sendMessageToServer(final String message) {
+        new AsyncTask<Void, Void, Boolean>() {
+
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                return connectionSocket.sendSocketMessage(message);
+            }
+
+            @Override
+            protected void onPostExecute(Boolean aBoolean) {
+                if(!aBoolean) {
+                    Toast.makeText(getApplicationContext(), "Cannot Connect To Server, Please Reconnect.", Toast.LENGTH_LONG).show();
+                    new AsyncTask<Void, Void, Void>() {
+
+                        @Override
+                        protected Void doInBackground(Void... voids) {
+                            try {
+                                connectionSocket = new ConnectionSocket("192.168.0.105", 6000);
+                            } catch (Exception e) {
+                                Log.i("Error_Socket", "Error Creating Socket: " + e);
+                            }
+                            return null;
+                        }
+                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                }
+                super.onPostExecute(aBoolean);
+            }
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    }
+
+    @SuppressLint("StaticFieldLeak")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,34 +80,10 @@ public class MainActivity extends AppCompatActivity {
                                     Log.i("Debug", "Pointer Down");
                                     initial_x = ev.getX(pointerIndex);
                                     initial_y = ev.getY(pointerIndex);
-                                    new AsyncTask<Void, Void, Boolean>() {
-
-                                        @Override
-                                        protected Boolean doInBackground(Void... voids) {
-                                            return connectionSocket.sendSocketMessage("Touch: " + initial_x + " " + initial_y);
-                                        }
-
-                                        @Override
-                                        protected void onPostExecute(Boolean aBoolean) {
-                                            if(!aBoolean) {
-                                                Toast.makeText(getApplicationContext(), "Cannot Connect To Server, Please Reconnect.", Toast.LENGTH_LONG).show();
-                                                new AsyncTask<Void, Void, Void>() {
-
-                                                    @Override
-                                                    protected Void doInBackground(Void... voids) {
-                                                        try {
-                                                            connectionSocket = new ConnectionSocket("192.168.0.105", 6000);
-                                                        } catch (Exception e) {
-                                                            Log.i("Error_Socket", "Error Creating Socket: " + e);
-                                                            touchPad = null;
-                                                        }
-                                                        return null;
-                                                    }
-                                                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
-                                            }
-                                            super.onPostExecute(aBoolean);
-                                        }
-                                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
+                                    start_x = initial_x;
+                                    start_y = initial_y;
+                                    prevDate = new Date();
+                                    sendMessageToServer("Touch: " + initial_x + " " + initial_y);
                                     Log.i("Debug", "X: " + initial_x + " Y: " + initial_y);
                                     break;
                                 }
@@ -79,7 +91,9 @@ public class MainActivity extends AppCompatActivity {
                                 case MotionEvent.ACTION_UP: {
                                     float x = ev.getX(pointerIndex);
                                     float y = ev.getY(pointerIndex);
-                                    if (Math.abs(x - initial_x) + Math.abs(y - initial_y) < 10.0) {
+                                    Date now = new Date();
+                                    if (Math.abs(x - start_x) + Math.abs(y - start_y) < 10.0 && now.getTime() - prevDate.getTime() <= 600) {
+                                        sendMessageToServer("Click:");
                                         Log.i("Debug", "Click: "+ev.getX()+" "+ev.getY());
                                     }
                                 }
@@ -88,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
                                     float x = ev.getX(pointerIndex);
                                     float y = ev.getY(pointerIndex);
                                     if (Math.abs(x - initial_x) + Math.abs(y - initial_y) >= 10.0) {
+                                        sendMessageToServer("Move: " + (x - initial_x) + " " + (y - initial_y));
                                         initial_x = x;
                                         initial_y = y;
                                         Log.i("Debug", "Pointer Moved");
@@ -116,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return null;
             }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override

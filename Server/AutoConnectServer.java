@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.Date;
+import java.util.Scanner;
 
 public class AutoConnectServer {
 
@@ -10,12 +11,14 @@ public class AutoConnectServer {
 	private static DataOutputStream dos = null;
 	private static MyRobot myRobot = null;
 	private static Date prevDate = new Date();
+	private static Scanner sc = null;
 
 	static {
 		try {
 			ss = new ServerSocket(6000);
 			s = ss.accept();
 			System.out.println("accepted a socket");
+			myRobot = new MyRobot();
 			dis = new DataInputStream(s.getInputStream());
 			dos = new DataOutputStream(s.getOutputStream());
 		} catch (Exception e) {
@@ -26,6 +29,7 @@ public class AutoConnectServer {
 
 	public static void main(String[] args) {
 		String str = "";
+		String type = "";
 
 		while(true) {
 			try {
@@ -33,6 +37,14 @@ public class AutoConnectServer {
 					System.out.println("Data Available");
 					str=(String)dis.readUTF();
 					System.out.println("message= "+str);
+					sc = new Scanner(str);
+					type = sc.next();
+					if(type.equals("Click:")) {
+						myRobot.leftClick();
+					}
+					if(type.equals("Move:")) {
+						myRobot.moveMouse(sc.nextDouble(), sc.nextDouble());
+					}
 				}
 				Date now = new Date();
 				if(now.getTime() - prevDate.getTime() >= 3000) {
