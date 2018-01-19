@@ -45,4 +45,20 @@ class MyRobot {
 		Point mousePosition = MouseInfo.getPointerInfo().getLocation();
 		robot.mouseMove((int)mousePosition.getX() + monitor_x, (int)mousePosition.getY() + monitor_y);
 	}
+
+	public void rightClickDown() {
+		robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
+	}
+
+	public void rightClickUp() {
+		robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
+	}
+
+	public void leftClickDown() {
+		robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+	}
+
+	public void leftClickUp() {
+		robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+	}
 }

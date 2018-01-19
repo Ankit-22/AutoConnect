@@ -40,7 +40,6 @@
                 android:layout_weight="1"
                 android:focusable="true"
                 android:clickable="true"
-                android:onClick="leftClick"
                 android:background="#a62727" />
 
             <Button
@@ -50,7 +49,6 @@
                 android:background="#a62727"
                 android:focusable="true"
                 android:clickable="true"
-                android:onClick="rightClick"
                 android:layout_marginStart="2dp"
                 android:id="@+id/right_click"/>
 

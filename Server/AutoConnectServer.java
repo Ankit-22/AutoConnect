@@ -42,8 +42,20 @@ public class AutoConnectServer {
 					if(type.equals("Click:")) {
 						myRobot.leftClick();
 					}
-					if(type.equals("Move:")) {
+					else if(type.equals("Move:")) {
 						myRobot.moveMouse(sc.nextDouble(), sc.nextDouble());
+					}
+					else if(type.equals("LeftClick:")) {
+						if(sc.next().equals("Down"))
+							myRobot.leftClickDown();
+						else
+							myRobot.leftClickUp();
+					}
+					else if(type.equals("RightClick:")) {
+						if(sc.next().equals("Down"))
+							myRobot.rightClickDown();
+						else
+							myRobot.rightClickUp();
 					}
 				}
 				Date now = new Date();

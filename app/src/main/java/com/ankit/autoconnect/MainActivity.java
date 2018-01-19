@@ -1,12 +1,14 @@
 package com.ankit.autoconnect;
 
 import android.annotation.SuppressLint;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.Date;
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    @SuppressLint("StaticFieldLeak")
+    @SuppressLint({"StaticFieldLeak", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
                             final int actionPerformed = ev.getAction();
                             mActivePointerId = ev.getPointerId(0);
                             int pointerIndex = ev.findPointerIndex(mActivePointerId);
+                            Rect rect = new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
 
                             switch (actionPerformed & MotionEvent.ACTION_MASK) {
                                 case MotionEvent.ACTION_DOWN: {
@@ -99,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
                                 }
 
                                 case MotionEvent.ACTION_MOVE: {
+                                    if(!rect.contains(view.getLeft() + (int) ev.getX(), view.getTop() + (int) ev.getY()))
+                                        break;
                                     float x = ev.getX(pointerIndex);
                                     float y = ev.getY(pointerIndex);
                                     if (Math.abs(x - initial_x) + Math.abs(y - initial_y) >= 10.0) {
@@ -132,6 +137,37 @@ public class MainActivity extends AppCompatActivity {
                 return null;
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+        ((Button)findViewById(R.id.left_click)).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    Log.i("Debug", "LeftClick Down");
+                    sendMessageToServer("LeftClick: Down");
+                }
+                else if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    Log.i("Debug", "LeftClick Up");
+                    sendMessageToServer("LeftClick: Release");
+                }
+                return true;
+            }
+        });
+
+        ((Button)findViewById(R.id.right_click)).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    Log.i("Debug", "RightClick Down");
+                    sendMessageToServer("RightClick: Down");
+                }
+                else if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    Log.i("Debug", "RightClick Up");
+                    sendMessageToServer("RightClick: Release");
+                }
+                return true;
+            }
+        });
+
     }
 
     @Override
@@ -140,11 +176,11 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    public void leftClick(View view) {
-        Log.i("Debug", "Left Click");
-    }
-
-    public void rightClick(View view) {
-        Log.i("Debug", "Right Click");
-    }
+//    public void leftClick(View view) {
+//        Log.i("Debug", "Left Click");
+//    }
+//
+//    public void rightClick(View view) {
+//        Log.i("Debug", "Right Click");
+//    }
 }
