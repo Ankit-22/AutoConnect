@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                                     float x = ev.getX(pointerIndex);
                                     float y = ev.getY(pointerIndex);
                                     Date now = new Date();
-                                    if (Math.abs(x - start_x) + Math.abs(y - start_y) < 5.0 && now.getTime() - prevDate.getTime() <= 600) {
+                                    if (Math.abs(x - start_x) + Math.abs(y - start_y) < 1.0 && now.getTime() - prevDate.getTime() <= 600) {
                                         sendMessageToServer("Click:");
                                         Log.i("Debug", "Click: "+ev.getX()+" "+ev.getY());
                                     }
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                                         break;
                                     float x = ev.getX(pointerIndex);
                                     float y = ev.getY(pointerIndex);
-                                    if (Math.abs(x - initial_x) + Math.abs(y - initial_y) >= 5.0) {
+                                    if (Math.abs(x - initial_x) + Math.abs(y - initial_y) >= 1.0) {
                                         sendMessageToServer("Move: " + (x - initial_x) + " " + (y - initial_y));
                                         initial_x = x;
                                         initial_y = y;
