@@ -15,7 +15,7 @@ public class ConnectionSocket {
     private DataOutputStream dataStream;
     private Socket socket;
 
-    public ConnectionSocket(String server, int port) throws Exception {
+    ConnectionSocket(String server, int port) throws Exception {
         try {
             socket = new Socket(server, port);
             dataStream = new DataOutputStream(socket.getOutputStream());
@@ -25,7 +25,7 @@ public class ConnectionSocket {
         }
     }
 
-    public boolean sendSocketMessage(String message) {
+    boolean sendSocketMessage(String message) {
         try {
             dataStream.writeUTF(message);
             Log.i("Debug", "Sent Message: "+message);

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">AutoConnect</string>
+    <string name="input_text_ip">Enter the IP of the server machine</string>
+    <string name="connect">Connect</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.ankit.autoconnect;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +20,8 @@ public class MainActivity extends AppCompatActivity {
     private float initial_x, initial_y, start_x, start_y;
     private int mActivePointerId;
     private View touchPad;
+    private int port = 0;
+    private String server = "";
     private static Date prevDate = new Date();
     private ConnectionSocket connectionSocket;
 
@@ -40,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         protected Void doInBackground(Void... voids) {
                             try {
-                                connectionSocket = new ConnectionSocket("192.168.0.105", 6000);
+                                connectionSocket = new ConnectionSocket(server, port);
                             } catch (Exception e) {
                                 Log.i("Error_Socket", "Error Creating Socket: " + e);
                             }
@@ -53,24 +56,28 @@ public class MainActivity extends AppCompatActivity {
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
-    @SuppressLint({"StaticFieldLeak", "ClickableViewAccessibility"})
+    @SuppressLint("StaticFieldLeak")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Intent passedInfo = getIntent();
+        server = passedInfo.getStringExtra("server");
+        port = passedInfo.getIntExtra("port", 0);
         touchPad = findViewById(R.id.touchpad);
         new AsyncTask<Void, Void, Void>() {
 
             @Override
             protected Void doInBackground(Void... voids) {
                 try {
-                    connectionSocket = new ConnectionSocket("192.168.0.105", 6000);
+                    connectionSocket = new ConnectionSocket(server, port);
                 } catch (Exception e) {
                     Log.i("Error_Socket", "Error Creating Socket: " + e);
                     touchPad = null;
                 }
                 if (touchPad != null) {
                     touchPad.setOnTouchListener(new View.OnTouchListener() {
+                        @SuppressLint("ClickableViewAccessibility")
                         @Override
                         public boolean onTouch(View view, MotionEvent ev) {
                             final int actionPerformed = ev.getAction();
@@ -95,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                                     float x = ev.getX(pointerIndex);
                                     float y = ev.getY(pointerIndex);
                                     Date now = new Date();
-                                    if (Math.abs(x - start_x) + Math.abs(y - start_y) < 10.0 && now.getTime() - prevDate.getTime() <= 600) {
+                                    if (Math.abs(x - start_x) + Math.abs(y - start_y) < 5.0 && now.getTime() - prevDate.getTime() <= 600) {
                                         sendMessageToServer("Click:");
                                         Log.i("Debug", "Click: "+ev.getX()+" "+ev.getY());
                                     }
@@ -106,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                                         break;
                                     float x = ev.getX(pointerIndex);
                                     float y = ev.getY(pointerIndex);
-                                    if (Math.abs(x - initial_x) + Math.abs(y - initial_y) >= 10.0) {
+                                    if (Math.abs(x - initial_x) + Math.abs(y - initial_y) >= 5.0) {
                                         sendMessageToServer("Move: " + (x - initial_x) + " " + (y - initial_y));
                                         initial_x = x;
                                         initial_y = y;
@@ -175,12 +182,4 @@ public class MainActivity extends AppCompatActivity {
         connectionSocket.finalize();
         super.onDestroy();
     }
-
-//    public void leftClick(View view) {
-//        Log.i("Debug", "Left Click");
-//    }
-//
-//    public void rightClick(View view) {
-//        Log.i("Debug", "Right Click");
-//    }
 }
