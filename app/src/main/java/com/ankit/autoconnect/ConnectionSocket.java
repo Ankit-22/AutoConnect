@@ -42,8 +42,10 @@ public class ConnectionSocket {
     @Override
     public void finalize() {
         try {
-            socket.close();
+            socket.shutdownInput();
+            socket.shutdownOutput();
             dataStream.close();
+            socket.close();
         } catch (IOException e) {
             Log.i("Error", ""+e);
         }
