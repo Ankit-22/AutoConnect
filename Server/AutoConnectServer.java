@@ -20,6 +20,7 @@ public class AutoConnectServer {
 	private static DataOutputStream dos = null;
 	private static MyRobot myRobot = null;
 	private static Scanner sc = null;
+	private static Date prevDate = new Date();;
 
 	static {
 		try {
@@ -42,6 +43,7 @@ public class AutoConnectServer {
 		while(true) {
 			try {
 				if(dis.available() != 0) {
+					prevDate = new Date();
 					System.out.println("Data Available");
 					ExecutorService executor = Executors.newCachedThreadPool();
 					Callable<Object> task = new Callable<Object>() {
@@ -80,6 +82,12 @@ public class AutoConnectServer {
 							myRobot.rightClickDown();
 						else
 							myRobot.rightClickUp();
+					}
+				} else {
+					Date now = new Date();
+					if(now.getTime() - prevDate.getTime() >= 3000) {
+						prevDate = now;
+						throw new SocketException();
 					}
 				}
 			} catch(EOFException | SocketException | InputMismatchException  e) {
