@@ -90,7 +90,7 @@ public class AutoConnectServer {
 						throw new SocketException();
 					}
 				}
-			} catch(EOFException | SocketException | InputMismatchException  e) {
+			} catch(EOFException | SocketException  e) {
 				System.out.println(e);
 				try {
 					s.close();
@@ -98,12 +98,13 @@ public class AutoConnectServer {
 					System.out.println("accepted a socket");
 					dis = new DataInputStream(s.getInputStream());
 					dos = new DataOutputStream(s.getOutputStream());
+					prevDate = new Date();
 					System.out.println("Got InputStream");
-				} catch(Exception ex) {
+				} catch( Exception ex) {
 					System.out.println(ex);
 					break;
 				}
-			} catch(IOException e) {
+			} catch(InputMismatchException | IOException e) {
 				System.out.println(e);
 			}
 		}
