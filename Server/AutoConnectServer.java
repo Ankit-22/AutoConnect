@@ -20,10 +20,15 @@ public class AutoConnectServer {
 	private static DataOutputStream dos = null;
 	private static MyRobot myRobot = null;
 	private static Scanner sc = null;
-	private static Date prevDate = new Date();;
+	private static Date prevDate = new Date();
+	private static String password = "";
+	private static boolean isLogged = false;
 
 	static {
 		try {
+			System.out.println("Enter a session password: ");
+			Scanner scr = new Scanner(System.in);
+			password = scr.next();
 			ss = new ServerSocket(6000);
 			s = ss.accept();
 			System.out.println("accepted a socket");
@@ -62,6 +67,17 @@ public class AutoConnectServer {
 						throw new SocketException();
 					}
 					if(str == null) throw new SocketException();
+					// System.out.println(str);
+					if(! isLogged) {
+						// System.out.println(str);
+						sc = new Scanner(str);
+						type = sc.next();
+						if(! type.equals("Login:")) continue;
+						// System.out.println("Type Login");
+						String fpassword = sc.next();
+						if(! fpassword.equals(password)) continue;
+						isLogged = true;
+					}
 					System.out.println("message= "+str);
 					sc = new Scanner(str);
 					type = sc.next();
